@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kristal Patiler | 🔮</title>
+    <style>
+        :root {
+            --bg-color: #0f0c29;
+            --ball-color: #a29bfe;
+            --magic-color: #e84393;
+        }
+
+        body {
+            background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+        }
+
+        /* Kristal Küre Tasarımı */
+        .ball-container {
+            position: relative;
+            cursor: pointer;
+            margin: 20px auto;
+        }
+
+        .crystal-ball {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle at 30% 30%, #ffffff, #a29bfe 40%, #6c5ce7 70%, #2d3436 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 80px rgba(108, 92, 231, 0.6), inset 0 0 50px rgba(255,255,255,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 100px;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: float 4s ease-in-out infinite;
+            user-select: none;
+        }
+
+        /* Titreme Efekti (Dokununca) */
+        .shake {
+            animation: shake 0.5s ease-in-out !important;
+        }
+
+        /* Kehanet Anında Parlama */
+        .glow {
+            box-shadow: 0 0 150px var(--magic-color);
+            transform: scale(1.1);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.02); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        #status-text {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: var(--ball-color);
+            text-shadow: 0 0 10px rgba(162, 155, 254, 0.5);
+            font-style: italic;
+        }
+
+        /* Sonuç Alanı */
+        #result-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            max-width: 400px;
+            opacity: 0;
+            transition: opacity 1s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .special-msg {
+            display: block;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #fab1a0;
+            font-weight: bold;
+        }
+
+        .input-name {
+            background: transparent;
+            border: 1px solid var(--ball-color);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🔮 Kristal Patiler</h1>
+        <input type="text" id="username" class="input-name" placeholder="Adını buraya fısılda..." maxlength="15">
+        
+        <div class="ball-container" onclick="handleBallClick()">
+            <div class="crystal-ball" id="magicBall">✨</div>
+        </div>
+
+        <p id="status-text">Kehanet için küreye 3 kez dokun...</p>
+
+        <div id="result-box">
+            <div id="kehanet-text">...</div>
+            <span class="special-msg" id="msg-text"></span>
+        </div>
+    </div>
+
+    <script>
+        let clickCount = 0;
+        const ball = document.getElementById('magicBall');
+        const status = document.getElementById('status-text');
+        const resultBox = document.getElementById('result-box');
+
+        async function handleBallClick() {
+            if (clickCount < 3) {
+                clickCount++;
+                ball.classList.add('shake');
+                setTimeout(() => ball.classList.remove('shake'), 500);
+                
+                if (clickCount < 3) {
+                    status.innerText = `${3 - clickCount} dokunuş daha...`;
+                } else {
+                    status.innerText = "Yıldızlar hizalanıyor...";
+                    getFortune();
+                }
+            }
+        }
+
+        async function getFortune() {
+            const userName = document.getElementById('username').value || "Gizemli Yolcu";
+            ball.classList.add('glow');
+            ball.innerText = "🔮";
+
+            try {
+                const response = await fetch('/kehanet-al', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ isim: userName })
+                });
+                
+                const data = await response.json();
+
+                if (data.kehanet) {
+                    document.getElementById('kehanet-text').innerText = data.kehanet;
+                    document.getElementById('msg-text').innerText = `✨ Not: ${data.ozel_mesaj}`;
+                    resultBox.style.opacity = "1";
+                    status.innerText = "Kaderin yazıldı!";
+                }
+            } catch (err) {
+                status.innerText = "Bir enerji karmaşası oldu!";
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+</html>
