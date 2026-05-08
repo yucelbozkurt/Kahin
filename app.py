@@ -5,7 +5,7 @@ import random
 app = Flask(__name__)
 
 # --- YAPILANDIRMA ---
-API_KEY = "AIzaSyA5g6turdbSOENfYzhC1crEafoAI8bpkmo" # Google AI Studio'dan aldığın anahtar
+API_KEY = "AIzaSyCS0Dti27Qa3mKwXkmkZFWSA-FjyFcJg5g" # Google AI Studio'dan aldığın anahtar
 client = genai.Client(api_key=API_KEY)
 
 # Kullanıcıya özel "Küçük Mesajlar" havuzu
